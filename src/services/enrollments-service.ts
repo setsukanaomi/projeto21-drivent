@@ -1,7 +1,7 @@
 import { Address, Enrollment } from '@prisma/client';
 import httpStatus from 'http-status';
 import { request } from '@/utils/request';
-import { notFoundError, requestError } from '@/errors';
+import { requestError } from '@/errors';
 import { addressRepository, CreateAddressParams, enrollmentRepository, CreateEnrollmentParams } from '@/repositories';
 import { exclude } from '@/utils/prisma-utils';
 import { AddressCEP } from '@/protocols';
@@ -24,7 +24,7 @@ async function getAddressFromCEP(cep: string): Promise<AddressCEP> {
 async function getOneWithAddressByUserId(userId: number): Promise<GetOneWithAddressByUserIdResult> {
   const enrollmentWithAddress = await enrollmentRepository.findWithAddressByUserId(userId);
 
-  if (!enrollmentWithAddress) throw notFoundError();
+  if (!enrollmentWithAddress) throw requestError(httpStatus.BAD_REQUEST, 'Bad Request');
 
   const [firstAddress] = enrollmentWithAddress.Address;
   const address = getFirstAddress(firstAddress);
