@@ -23,6 +23,10 @@ export type AddressEnrollment = {
   uf: string;
 };
 
+export type TicketType = {
+  ticketTypeId: number;
+};
+
 export type CEP = {
   cep: string;
 };
