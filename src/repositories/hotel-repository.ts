@@ -3,8 +3,8 @@ import { prisma } from '@/config';
 
 async function findAllHotelsMany(): Promise<{ hotels: Hotel[]; count: number }> {
   const resultHotels = await prisma.hotel.findMany();
-  const countMany = await prisma.hotel.count();
-  return { hotels: resultHotels, countMany };
+  const count = await prisma.hotel.count();
+  return { hotels: resultHotels, count };
 }
 
 async function findHotelByIdOne(id: number) {
