@@ -1,60 +1,56 @@
-import { Enrollment, Ticket, TicketType } from '@prisma/client';
+import { TicketStatus } from '@prisma/client';
 import { prisma } from '@/config';
+import { CreateTicketParams } from '@/protocols';
 
-async function findManyTickets(): Promise<TicketType[]> {
-  const types = await prisma.ticketType.findMany();
-  return types as TicketType[];
+async function findTicketTypes() {
+  const result = await prisma.ticketType.findMany();
+  return result;
 }
 
-async function findFirstTicket(userId: number): Promise<TicketResponse | null> {
-  const ticket = await prisma.ticket.findFirst({
+async function findTicketByEnrollmentId(enrollmentId: number) {
+  const result = await prisma.ticket.findUnique({
+    where: { enrollmentId },
+    include: { TicketType: true },
+  });
+
+  return result;
+}
+
+async function createTicket(ticket: CreateTicketParams) {
+  const result = await prisma.ticket.create({
+    data: ticket,
+    include: { TicketType: true },
+  });
+
+  return result;
+}
+
+async function findTicketById(ticketId: number) {
+  const result = await prisma.ticket.findUnique({
+    where: { id: ticketId },
+    include: { TicketType: true },
+  });
+
+  return result;
+}
+
+async function ticketProcessPayment(ticketId: number) {
+  const result = prisma.ticket.update({
     where: {
-      Enrollment: { userId },
+      id: ticketId,
     },
-    include: {
-      TicketType: true,
+    data: {
+      status: TicketStatus.PAID,
     },
   });
-  return ticket as TicketResponse;
-}
 
-async function findTicketEnrollment(userId: number): Promise<Enrollment> {
-  const enrollment = await prisma.enrollment.findUnique({
-    where: { userId },
-  });
-  return enrollment as Enrollment;
-}
-
-async function findATicketType(id: number): Promise<TicketType> {
-  const ticketType = await prisma.ticketType.findUnique({
-    where: { id },
-  });
-  return ticketType as TicketType;
-}
-
-async function createTicket(data: CreateTicket) {
-  const createdTicket = await prisma.ticket.create({
-    data: data,
-  });
-  const ticketType = await findATicketType(data.ticketTypeId);
-
-  const response = {
-    ...createdTicket,
-    TicketType: ticketType,
-  };
-  return response as TicketResponse;
+  return result;
 }
 
 export const ticketsRepository = {
-  findManyTickets,
-  findFirstTicket,
+  findTicketTypes,
+  findTicketByEnrollmentId,
   createTicket,
-  findTicketEnrollment,
-  findATicketType,
+  findTicketById,
+  ticketProcessPayment,
 };
-
-export type TicketResponse = Ticket & {
-  TicketType: TicketType;
-};
-
-export type CreateTicket = Omit<Ticket, 'id' | 'createdAt' | 'updatedAt'>;
