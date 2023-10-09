@@ -2,7 +2,7 @@ import { ApplicationError } from '@/protocols';
 
 export function paymentErrors(): ApplicationError {
   return {
-    name: 'PaymentError',
+    name: 'PaymentErrors',
     message: 'Payment Required',
   };
 }
